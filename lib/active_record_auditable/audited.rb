@@ -3,7 +3,7 @@ module ActiveRecordAuditable::Audited
     base.has_one :create_audit, # rubocop:disable Rails/HasManyOrHasOneDependent
       -> { joins(:audit_action).where(audit_actions: {action: "create"}) },
       as: :auditable,
-      class_name: "Audit",
+      class_name: "ActiveRecordAuditable::Audit",
       inverse_of: :auditable
     base.has_many :audits, # rubocop:disable Rails/HasManyOrHasOneDependent
       as: :auditable,
@@ -23,7 +23,7 @@ module ActiveRecordAuditable::Audited
   end
 
   def create_audit!(action:, audited_changes: saved_changes_for_audit, extra_liquid_variables: nil, user: nil)
-    Audit.create!(
+    ActiveRecordAuditable::Audit.create!(
       audit_action: find_or_create_auditable_action(action),
       audit_auditable_type_id: find_or_create_auditable_type.id,
       audited_changes:,
@@ -40,13 +40,13 @@ module ActiveRecordAuditable::Audited
 
   def find_or_create_auditable_action(action)
     audit_monitor.synchronize do
-      return AuditAction.find_or_create_by!(action:)
+      return ActiveRecordAuditable::AuditAction.find_or_create_by!(action:)
     end
   end
 
   def find_or_create_auditable_type
     audit_monitor.synchronize do
-      return AuditAuditableType.find_or_create_by!(name: self.class.name)
+      return ActiveRecordAuditable::AuditAuditableType.find_or_create_by!(name: self.class.name)
     end
   end
 
