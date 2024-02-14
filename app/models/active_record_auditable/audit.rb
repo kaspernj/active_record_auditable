@@ -8,7 +8,5 @@ class ActiveRecordAuditable::Audit < ApplicationRecord
   serialize :audited_changes, JSON
   serialize :extra_liquid_variables, JSON
 
-  after_save -> { NotificationTypeAuditTriggers::CallTriggers.perform_later.execute!(audit: self) if user.present? }
-
   scope :where_action, ->(action) { joins(:audit_action).where(audit_actions: {action:}) }
 end
