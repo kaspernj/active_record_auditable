@@ -16,11 +16,11 @@ Gem::Specification.new do |spec|
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = "https://github.com/kaspernj/active_record_auditable"
-  spec.metadata["changelog_uri"] = "TODO: Put your gem's CHANGELOG.md URL here."
+  spec.metadata["changelog_uri"] = "https://github.com/kaspernj/active_record_auditable/blob/master/CHANGELOG.md"
 
   spec.files = Dir.chdir(File.expand_path(__dir__)) do
     Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
   end
 
-  spec.add_dependency "rails", ">= 7.1.3"
+  spec.add_dependency "rails", ">= 7.0.0"
 end
