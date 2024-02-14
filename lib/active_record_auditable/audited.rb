@@ -7,6 +7,7 @@ module ActiveRecordAuditable::Audited
       inverse_of: :auditable
     base.has_many :audits, # rubocop:disable Rails/HasManyOrHasOneDependent
       as: :auditable,
+      class_name: "ActiveRecordAuditable::Audit",
       inverse_of: :auditable
 
     base.after_create do
