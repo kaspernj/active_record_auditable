@@ -9,4 +9,6 @@ class ActiveRecordAuditable::Audit < ApplicationRecord
   serialize :extra_liquid_variables, JSON
 
   scope :where_action, ->(action) { joins(:audit_action).where(audit_actions: {action:}) }
+
+  delegate :action, to: :audit_action
 end
