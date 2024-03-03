@@ -29,7 +29,7 @@ module ActiveRecordAuditable::Audited
       audit_auditable_type_id: find_or_create_auditable_type.id,
       audited_changes:,
       auditable_id: id,
-      auditable_type: self.class.name,
+      auditable_type: self.model_name.name,
       extra_liquid_variables:,
       user:
     )
