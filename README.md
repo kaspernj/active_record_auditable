@@ -21,6 +21,10 @@ Or install it yourself as:
 $ gem install active_record_auditable
 ```
 
+```bash
+rails active_record_auditable:install:migrations
+```
+
 ## Contributing
 Contribution directions go here.
 

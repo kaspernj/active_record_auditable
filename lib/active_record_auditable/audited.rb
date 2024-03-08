@@ -21,18 +21,29 @@ module ActiveRecordAuditable::Audited
     base.after_destroy do
       create_audit!(action: :destroy, audited_changes: nil)
     end
+
+    base.scope :without_audit, lambda { |action|
+      audit_query = ActiveRecordAuditable::Audit
+        .select(1)
+        .joins(:audit_action)
+        .where(auditable_type: base.model_name.name, audit_actions: {action:})
+        .where("#{ActiveRecordAuditable::Audit.table_name}.auditable_id = #{base.table_name}.#{base.primary_key}")
+        .limit(1)
+
+      where("NOT EXISTS (#{audit_query.to_sql})")
+    }
   end
 
-  def create_audit!(action:, audited_changes: saved_changes_for_audit, extra_liquid_variables: nil, user: nil)
-    ActiveRecordAuditable::Audit.create!(
+  def create_audit!(action:, audited_changes: saved_changes_for_audit, **args)
+    audit_data = {
       audit_action: find_or_create_auditable_action(action),
       audit_auditable_type_id: find_or_create_auditable_type.id,
       audited_changes:,
       auditable_id: id,
       auditable_type: self.model_name.name,
-      extra_liquid_variables:,
-      user:
-    )
+    }
+
+    ActiveRecordAuditable::Audit.create!(audit_data.merge(args))
   end
 
   def audit_monitor
