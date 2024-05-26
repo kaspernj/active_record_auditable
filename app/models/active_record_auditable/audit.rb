@@ -8,6 +8,7 @@ class ActiveRecordAuditable::Audit < ApplicationRecord
   serialize :audited_changes, coder: JSON
 
   scope :where_action, ->(action) { joins(:audit_action).where(audit_actions: {action:}) }
+  scope :where_type, ->(type) { joins(:audit_auditable_type).where(audit_auditable_types: {name: type}) }
 
   delegate :action, to: :audit_action
 
