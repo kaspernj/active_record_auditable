@@ -25,6 +25,17 @@ $ gem install active_record_auditable
 rails active_record_auditable:install:migrations
 ```
 
+Sometimes you need to do something like this in `config/initializers/active_record_auditable.rb`:
+```ruby
+Rails.configuration.to_prepare do
+  ActiveRecordAuditable::Audit.class_eval do
+    belongs_to :user, default: -> { Current.user }, optional: true
+
+    serialize :audited_changes, coder: JSON
+  end
+end
+```
+
 ## Contributing
 Contribution directions go here.
 
