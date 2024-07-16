@@ -19,7 +19,7 @@ module ActiveRecordAuditable::Audited
     end
 
     base.after_destroy do
-      create_audit!(action: :destroy, audited_changes: nil)
+      create_audit!(action: :destroy, audited_changes: attributes)
     end
 
     base.scope :without_audit, lambda { |action|
