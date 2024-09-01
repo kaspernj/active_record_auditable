@@ -46,11 +46,12 @@ module ActiveRecordAuditable::Audited
     end
 
     base.scope :without_audit, lambda { |action|
+      audit_class = self.class.reflections["audits"].klass
       audit_query = ActiveRecordAuditable::Audit
         .select(1)
         .joins(:audit_action)
         .where(auditable_type: base.model_name.name, audit_actions: {action:})
-        .where("#{ActiveRecordAuditable::Audit.table_name}.auditable_id = #{base.table_name}.#{base.primary_key}")
+        .where("#{audit_class.table_name}.auditable_id = #{base.table_name}.#{base.primary_key}")
         .limit(1)
 
       where("NOT EXISTS (#{audit_query.to_sql})")
@@ -70,6 +71,8 @@ module ActiveRecordAuditable::Audited
       audit_class = Class.new(ActiveRecordAuditable::Audit)
       audit_class.class_eval do
         self.table_name = table_name
+
+        belongs_to base.model_name.param_key.to_sym
       end
 
       base.const_set("Audit", audit_class)
