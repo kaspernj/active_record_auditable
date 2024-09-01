@@ -1,7 +1,7 @@
 module ActiveRecordAuditable::Audited
   def self.included(base)
     dedicated_table_name = "#{base.table_name.singularize}_audits"
-    dedicated_table_exists = __dedicated_table_exists?(base)
+    dedicated_table_exists = __dedicated_table_exists?(base, dedicated_table_name)
 
     if dedicated_table_exists
       table_name = dedicated_table_name
@@ -47,7 +47,7 @@ module ActiveRecordAuditable::Audited
     }
   end
 
-  def self.__dedicated_table_exists?(base)
+  def self.__dedicated_table_exists?(base, dedicated_table_name)
     base.connection.execute("SHOW TABLES LIKE '#{dedicated_table_name}'").to_a(as: :hash).length.positive?
   rescue ActiveRecord::StatementInvalid
     false
