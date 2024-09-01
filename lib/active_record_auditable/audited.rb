@@ -1,4 +1,14 @@
 module ActiveRecordAuditable::Audited
+  def self.__cached_audit_table_names
+    @__cached_audit_table_names ||= begin
+      result = {}
+      ActiveRecordAuditable::Audit.connection.execute("SHOW TABLES LIKE '%_audits'").to_a.flatten.each do |table_name|
+        result[table_name] = true
+      end
+      result
+    end
+  end
+
   def self.included(base)
     dedicated_table_name = "#{base.table_name.singularize}_audits"
     dedicated_table_exists = __dedicated_table_exists?(base, dedicated_table_name)
@@ -48,7 +58,7 @@ module ActiveRecordAuditable::Audited
   end
 
   def self.__dedicated_table_exists?(base, dedicated_table_name)
-    base.connection.execute("SHOW TABLES LIKE '#{dedicated_table_name}'").to_a(as: :hash).length.positive?
+    ActiveRecordAuditable::Audited.__cached_audit_table_names.key?(dedicated_table_name)
   rescue ActiveRecord::StatementInvalid
     false
   end
