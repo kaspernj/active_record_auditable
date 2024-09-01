@@ -1,4 +1,4 @@
-class ActiveRecordAuditable::CreateAuditsTableForModelClass < ApplicationService
+class ActiveRecordAuditable::CreateAuditsTableForModelClass < ActiveRecordAuditable::ApplicationService
   arguments :model_class
   argument :create_table_args
   argument :extra_table_actions, default: nil
