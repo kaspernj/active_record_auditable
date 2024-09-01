@@ -1,13 +1,26 @@
 module ActiveRecordAuditable::Audited
   def self.included(base)
+    dedicated_table_name = "#{base.table_name.singularize}_audits"
+    dedicated_table_exists = base.connection.execute("SHOW TABLES LIKE '#{dedicated_table_name}'").to_a(as: :hash).length.positive?
+
+    if dedicated_table_exists
+      table_name = dedicated_table_name
+      audit_class = __dedicated_audit_class(base, table_name)
+      audit_class_name = "#{base.name}::Audit"
+    else
+      table_name = "audits"
+      audit_class = ActiveRecordAuditable::Audit
+      audit_class_name = "ActiveRecordAuditable::Audit"
+    end
+
     base.has_one :create_audit, # rubocop:disable Rails/HasManyOrHasOneDependent
       -> { joins(:audit_action).where(audit_actions: {action: "create"}) },
       as: :auditable,
-      class_name: "ActiveRecordAuditable::Audit",
+      class_name: audit_class_name,
       inverse_of: :auditable
     base.has_many :audits, # rubocop:disable Rails/HasManyOrHasOneDependent
       as: :auditable,
-      class_name: "ActiveRecordAuditable::Audit",
+      class_name: audit_class_name,
       inverse_of: :auditable
 
     base.after_create do
@@ -32,6 +45,20 @@ module ActiveRecordAuditable::Audited
 
       where("NOT EXISTS (#{audit_query.to_sql})")
     }
+  end
+
+  def self.__dedicated_audit_class(base, table_name)
+    if base.const_defined?("Audit")
+      base.const_get("Audit")
+    else
+      audit_class = Class.new(ActiveRecordAuditable::Audit)
+      audit_class.class_eval do
+        self.table_name = table_name
+      end
+
+      base.const_set("Audit", audit_class)
+      audit_class
+    end
   end
 
   def create_audit!(action:, audited_changes: saved_changes_for_audit, **args)
