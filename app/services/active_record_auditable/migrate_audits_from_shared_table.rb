@@ -16,9 +16,7 @@ class ActiveRecordAuditable::MigrateAuditsFromSharedTable < ActiveRecordAuditabl
       end
 
       insert_sql << ") VALUES "
-
       inserts = []
-      total_bytesize = 0
 
       records.each_with_index do |data, data_index|
         if !data["audit_auditable_type_id"]
