@@ -83,13 +83,19 @@ module ActiveRecordAuditable::Audited
   def create_audit!(action:, audited_changes: saved_changes_for_audit, **args)
     audit_data = {
       audit_action: find_or_create_auditable_action(action),
-      audit_auditable_type_id: find_or_create_auditable_type.id,
-      audited_changes:,
-      auditable_id: id,
-      auditable_type: self.model_name.name,
+      audited_changes:
     }
 
     audit_class = self.class.reflections["audits"].klass
+
+    if audit_class == ActiveRecordAuditable::Audit
+      audit_data[:audit_auditable_type_id] = find_or_create_auditable_type.id
+      audit_data[:auditable_id] = id
+      audit_data[:auditable_type] = self.model_name.name
+    else
+      audit_data[:"#{self.class.model_name.param_key}_id"] = id
+    end
+
     audit_class.create!(audit_data.merge(args))
   end
 

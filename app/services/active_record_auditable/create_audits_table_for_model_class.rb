@@ -9,7 +9,7 @@ class ActiveRecordAuditable::CreateAuditsTableForModelClass < ActiveRecordAudita
     create_args = create_table_args || {}
 
     ActiveRecord::Migration.new.create_table table_name, **create_args do |t|
-      t.references model_class.model_name.param_key.to_sym, null: false
+      t.references model_class.model_name.param_key.to_sym, null: false, type: id_type
       t.json :audited_changes
       t.references :audit_action, foreign_key: true, null: false, type: id_type
       t.json :params
