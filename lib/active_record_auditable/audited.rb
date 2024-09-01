@@ -90,7 +90,7 @@ module ActiveRecordAuditable::Audited
 
     if audit_class == ActiveRecordAuditable::Audit
       audit_data[:audit_auditable_type_id] = find_or_create_auditable_type.id
-      audit_data[:auditable_id] = id,
+      audit_data[:auditable_id] = id
       audit_data[:auditable_type] = self.model_name.name
     else
       audit_data[:"#{self.class.model_name.param_key}_id"] = id
