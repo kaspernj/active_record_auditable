@@ -12,7 +12,6 @@ class ActiveRecordAuditable::CreateAuditsTableForModelClass < ActiveRecordAudita
       t.references model_class.model_name.param_key.to_sym, null: false, type: id_type
       t.json :audited_changes
       t.references :audit_action, foreign_key: true, null: false, type: id_type
-      t.references :audit_auditable_type, foreign_key: true, null: false, type: id_type
       t.json :params
       extra_table_actions.call(t) if extra_table_actions
       t.timestamps

@@ -7,31 +7,40 @@ class ActiveRecordAuditable::MigrateAuditsFromSharedTable < ActiveRecordAuditabl
       records = model_class.connection.execute(sql).to_a(as: :hash)
 
       insert_sql = "INSERT INTO `#{new_table_name}` ("
+      insert_sql << "`#{model_class.model_name.param_key}`)"
       delete_sql = "DELETE FROM `audits` WHERE `#{id_column_name}` IN ("
       records_count = 0
 
-      records.first.keys.each_with_index do |key, index|
-        insert_sql << ", " if index > 0
-        insert_sql << "`#{key}`"
+      records.first.keys.each do |key|
+        next if key == "auditable_id" || key == "auditable_type" || key == "audit_auditable_type_id"
+
+        insert_sql << ", `#{key}`"
       end
+
 
       insert_sql << ") VALUES "
       inserts = []
 
       records.each_with_index do |data, data_index|
-        if !data["audit_auditable_type_id"]
-          auditable_type = ActiveRecordAuditable::AuditAuditableType.find_by!(name: data.fetch("auditable_type"))
-          data["audit_auditable_type_id"] = auditable_type.id
-        end
-
         delete_sql << ", " if data_index > 0
         delete_sql << model_class.connection.quote(data.fetch(id_column_name))
 
         insert_sql << ", " if data_index > 0
         insert_sql << "("
+        insert_sql << model_class.connection.quote(data.fetch("auditable_id"))
 
-        data.values.each_with_index do |value, value_index|
-          insert_sql << ", " if value_index > 0
+        data.each_with_index do |key, value|
+          next if key == "auditable_id" || key == "auditable_type" || key == "audit_auditable_type_id"
+
+          if key == "user_id"
+            key = "current_user_id"
+          elsif key == "school_id"
+            key = "current_school_id"
+          elsif key == "school_class_id"
+            key = "current_school_class_id"
+          end
+
+          insert_sql << ", "
           insert_sql << model_class.connection.quote(value)
 
           total_bytesize += (value.to_s.bytesize || 0) + 5
@@ -45,13 +54,9 @@ class ActiveRecordAuditable::MigrateAuditsFromSharedTable < ActiveRecordAuditabl
 
       delete_sql << ")"
 
-      puts "Inserting #{records_count} records of #{total_bytesize / 1.megabyte} megabytes"
-
       ActiveRecordAuditable::Audit.transaction do
         create_result = ActiveRecordAuditable::Audit.connection.execute(insert_sql)
         delete_result = ActiveRecordAuditable::Audit.connection.execute(delete_sql)
-
-        puts "#{records_count} records migrated"
       end
     end
 
