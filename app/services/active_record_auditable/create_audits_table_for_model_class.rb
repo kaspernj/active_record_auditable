@@ -9,17 +9,9 @@ class ActiveRecordAuditable::CreateAuditsTableForModelClass < ActiveRecordAudita
     create_args = create_table_args || {}
 
     ActiveRecord::Migration.new.create_table table_name, **create_args do |t|
-      t.references :auditable, polymorphic: true, type: id_type
-
-      if polymorphic_user_relation
-        t.references :user, polymorphic: true, type: id_type
-      else
-        t.references :user, type: id_type
-      end
-
+      t.references model_class.model_name.param_key.to_sym, null: false
       t.json :audited_changes
       t.references :audit_action, foreign_key: true, null: false, type: id_type
-      t.references :audit_auditable_type, foreign_key: true, null: false, type: id_type
       t.json :params
       extra_table_actions.call(t) if extra_table_actions
       t.timestamps
