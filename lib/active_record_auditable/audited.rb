@@ -86,7 +86,8 @@ module ActiveRecordAuditable::Audited
       auditable_type: self.model_name.name,
     }
 
-    ActiveRecordAuditable::Audit.create!(audit_data.merge(args))
+    audit_class = self.class.reflections["audits"].klass
+    audit_class.create!(audit_data.merge(args))
   end
 
   def audit_monitor
