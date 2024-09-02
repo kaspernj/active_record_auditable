@@ -80,6 +80,14 @@ module ActiveRecordAuditable::Audited
     end
   end
 
+  def auditable_type=(auditable_type)
+    __send__("auditable_type_id=", auditable_type.id)
+  end
+
+  def audit_monitor
+    @@audit_monitor ||= Monitor.new # rubocop:disable Style/ClassVars
+  end
+
   def create_audit!(action:, audited_changes: saved_changes_for_audit, **args)
     audit_data = {
       audit_action: find_or_create_auditable_action(action),
@@ -97,10 +105,6 @@ module ActiveRecordAuditable::Audited
     end
 
     audit_class.create!(audit_data.merge(args))
-  end
-
-  def audit_monitor
-    @@audit_monitor ||= Monitor.new # rubocop:disable Style/ClassVars
   end
 
   def find_or_create_auditable_action(action)
