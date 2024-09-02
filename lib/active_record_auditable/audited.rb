@@ -86,6 +86,7 @@ module ActiveRecordAuditable::Audited
         self.table_name = table_name
 
         belongs_to base.model_name.param_key.to_sym, optional: true
+        belongs_to :auditable, class_name: base.name, foreign_key: :"#{base.model_name.param_key}_id", optional: true
       end
 
       base.const_set("Audit", audit_class)
