@@ -87,15 +87,15 @@ module ActiveRecordAuditable::Audited
 
         belongs_to base.model_name.param_key.to_sym, optional: true
         belongs_to :auditable, class_name: base.name, foreign_key: :"#{base.model_name.param_key}_id", optional: true
+
+        def auditable_type
+          self.class.reflections["auditable"].class_name
+        end
       end
 
       base.const_set("Audit", audit_class)
       audit_class
     end
-  end
-
-  def auditable_type=(auditable_type)
-    __send__("auditable_type_id=", auditable_type.id)
   end
 
   def audit_monitor
