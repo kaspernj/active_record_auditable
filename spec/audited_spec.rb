@@ -27,5 +27,18 @@ describe "audited" do
 
   it "creates audits in a dedicated table" do
     expect { project }.to change(Project::Audit, :count).by(1)
+
+    expect(project.create_audit).to have_attributes(
+      action: "create",
+      project: project,
+      project_id: project.id
+    )
+
+    found_create_audit = project.audits.where_action(:create).first!
+    expect(found_create_audit).to have_attributes(
+      action: "create",
+      project: project,
+      project_id: project.id
+    )
   end
 end

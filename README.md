@@ -30,8 +30,6 @@ Sometimes you need to do something like this in `config/initializers/active_reco
 Rails.configuration.to_prepare do
   ActiveRecordAuditable::Audit.class_eval do
     belongs_to :user, default: -> { Current.user }, optional: true
-
-    serialize :audited_changes, coder: JSON
   end
 end
 ```

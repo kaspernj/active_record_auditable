@@ -18,20 +18,30 @@ module ActiveRecordAuditable::Audited
       audit_class = __dedicated_audit_class(base, table_name)
       audit_class_name = "#{base.name}::Audit"
       inverse_of = base.model_name.param_key.to_sym
+      as = inverse_of
     else
       table_name = "audits"
       audit_class = ActiveRecordAuditable::Audit
       audit_class_name = "ActiveRecordAuditable::Audit"
       inverse_of = :auditable
+      as = :auditable
     end
 
     base.has_one :create_audit, # rubocop:disable Rails/HasManyOrHasOneDependent
       -> { joins(:audit_action).where(audit_actions: {action: "create"}) },
-      as: inverse_of,
+      as: as,
       class_name: audit_class_name,
       inverse_of: inverse_of
     base.has_many :audits, # rubocop:disable Rails/HasManyOrHasOneDependent
-      as: inverse_of,
+      as: as,
+      class_name: audit_class_name,
+      inverse_of: inverse_of
+
+    base.has_one :create_audit, # rubocop:disable Rails/HasManyOrHasOneDependent
+      -> { joins(:audit_action).where(audit_actions: {action: "create"}) },
+      class_name: audit_class_name,
+      inverse_of: inverse_of
+    base.has_many :audits, # rubocop:disable Rails/HasManyOrHasOneDependent
       class_name: audit_class_name,
       inverse_of: inverse_of
 
@@ -49,13 +59,14 @@ module ActiveRecordAuditable::Audited
 
     base.scope :without_audit, lambda { |action|
       audit_class = self.class.reflections["audits"].klass
-      audit_query = ActiveRecordAuditable::Audit
+      audit_query = audit_class
         .select(1)
         .joins(:audit_action)
-        .where(auditable_type: base.model_name.name, audit_actions: {action:})
+        .where(audit_actions: {action:})
         .where("#{audit_class.table_name}.auditable_id = #{base.table_name}.#{base.primary_key}")
         .limit(1)
 
+      audit_query = audit_query.where(auditable_type: base.model_name.name) unless dedicated_table_exists
       where("NOT EXISTS (#{audit_query.to_sql})")
     }
   end
@@ -70,7 +81,7 @@ module ActiveRecordAuditable::Audited
     if base.const_defined?("Audit")
       base.const_get("Audit")
     else
-      audit_class = Class.new(ActiveRecordAuditable::Audit)
+      audit_class = Class.new(ActiveRecordAuditable::BaseAudit)
       audit_class.class_eval do
         self.table_name = table_name
 
