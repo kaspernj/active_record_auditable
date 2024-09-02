@@ -2,7 +2,7 @@ module ActiveRecordAuditable::Audited
   def self.__cached_audit_table_names
     @__cached_audit_table_names ||= begin
       result = {}
-      ActiveRecordAuditable::Audit.connection.execute("SHOW TABLES LIKE '%_audits'").to_a.flatten.each do |table_name|
+      ActiveRecordAuditable::Audit.connection.tables.filter { |table_name| table_name.ends_with?("_audits") }.each do |table_name|
         result[table_name] = true
       end
       result
@@ -17,21 +17,23 @@ module ActiveRecordAuditable::Audited
       table_name = dedicated_table_name
       audit_class = __dedicated_audit_class(base, table_name)
       audit_class_name = "#{base.name}::Audit"
+      inverse_of = base.model_name.param_key.to_sym
     else
       table_name = "audits"
       audit_class = ActiveRecordAuditable::Audit
       audit_class_name = "ActiveRecordAuditable::Audit"
+      inverse_of = :auditable
     end
 
     base.has_one :create_audit, # rubocop:disable Rails/HasManyOrHasOneDependent
       -> { joins(:audit_action).where(audit_actions: {action: "create"}) },
-      as: :auditable,
+      as: inverse_of,
       class_name: audit_class_name,
-      inverse_of: :auditable
+      inverse_of: inverse_of
     base.has_many :audits, # rubocop:disable Rails/HasManyOrHasOneDependent
-      as: :auditable,
+      as: inverse_of,
       class_name: audit_class_name,
-      inverse_of: :auditable
+      inverse_of: inverse_of
 
     base.after_create do
       create_audit!(action: :create)
@@ -72,7 +74,7 @@ module ActiveRecordAuditable::Audited
       audit_class.class_eval do
         self.table_name = table_name
 
-        belongs_to base.model_name.param_key.to_sym
+        belongs_to base.model_name.param_key.to_sym, optional: true
       end
 
       base.const_set("Audit", audit_class)

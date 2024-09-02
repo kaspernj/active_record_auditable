@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_07_16_111518) do
+ActiveRecord::Schema[7.2].define(version: 2024_09_02_062450) do
   create_table "accounts", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
@@ -47,6 +47,27 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_16_111518) do
     t.index ["user_type", "user_id"], name: "index_audits_on_user"
   end
 
+  create_table "project_audits", force: :cascade do |t|
+    t.integer "project_id", null: false
+    t.json "audited_changes"
+    t.integer "audit_action_id", null: false
+    t.json "params"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["audit_action_id"], name: "index_project_audits_on_audit_action_id"
+    t.index ["project_id"], name: "index_project_audits_on_project_id"
+  end
+
+  create_table "projects", force: :cascade do |t|
+    t.integer "account_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_projects_on_account_id"
+  end
+
   add_foreign_key "audits", "audit_actions"
   add_foreign_key "audits", "audit_auditable_types"
+  add_foreign_key "project_audits", "audit_actions"
+  add_foreign_key "projects", "accounts"
 end
