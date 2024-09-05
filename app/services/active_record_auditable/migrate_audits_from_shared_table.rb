@@ -7,7 +7,7 @@ class ActiveRecordAuditable::MigrateAuditsFromSharedTable < ActiveRecordAuditabl
       records = model_class.connection.execute(sql).to_a(as: :hash)
 
       insert_sql = "INSERT INTO `#{new_table_name}` ("
-      insert_sql << "`#{model_class.model_name.param_key}`)"
+      insert_sql << "`#{model_class.model_name.param_key}_id`"
       delete_sql = "DELETE FROM `audits` WHERE `#{id_column_name}` IN ("
       records_count = 0
 
@@ -29,7 +29,7 @@ class ActiveRecordAuditable::MigrateAuditsFromSharedTable < ActiveRecordAuditabl
         insert_sql << "("
         insert_sql << model_class.connection.quote(data.fetch("auditable_id"))
 
-        data.each_with_index do |key, value|
+        data.each do |key, value|
           next if key == "auditable_id" || key == "auditable_type" || key == "audit_auditable_type_id"
 
           if key == "user_id"
@@ -42,8 +42,6 @@ class ActiveRecordAuditable::MigrateAuditsFromSharedTable < ActiveRecordAuditabl
 
           insert_sql << ", "
           insert_sql << model_class.connection.quote(value)
-
-          total_bytesize += (value.to_s.bytesize || 0) + 5
         end
 
         insert_sql << ")"
