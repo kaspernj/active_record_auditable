@@ -94,6 +94,10 @@ module ActiveRecordAuditable::Audited
       end
 
       base.const_set("Audit", audit_class)
+
+      ActiveRecordAuditable::AuditAction.has_many(audit_class.model_name.plural.to_sym, class_name: audit_class.name)
+      ActiveRecordAuditable::AuditAuditableType.has_many(audit_class.model_name.plural.to_sym, class_name: audit_class.name)
+
       audit_class
     end
   end
