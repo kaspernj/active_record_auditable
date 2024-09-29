@@ -41,4 +41,18 @@ describe "audited" do
       project_id: project.id
     )
   end
+
+  describe "#without_audit" do
+    it "filters out audits with a specific audit" do
+      project1 = create(:project)
+      project1.create_audit!(action: "custom_audit")
+
+      project2 = create(:project)
+      project2.create_audit!(action: "another_audit")
+
+      projects = Project.without_audit(:another_audit)
+
+      expect(projects).to eq [project1]
+    end
+  end
 end

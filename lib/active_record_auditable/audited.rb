@@ -58,12 +58,14 @@ module ActiveRecordAuditable::Audited
     end
 
     base.scope :without_audit, lambda { |action|
-      audit_class = self.class.reflections["audits"].klass
+      audit_class = base.reflections["audits"].klass
+      audit_foreign_key = base.reflections["audits"].foreign_key
+
       audit_query = audit_class
         .select(1)
         .joins(:audit_action)
         .where(audit_actions: {action:})
-        .where("#{audit_class.table_name}.auditable_id = #{base.table_name}.#{base.primary_key}")
+        .where("#{audit_class.table_name}.#{audit_foreign_key} = #{base.table_name}.#{base.primary_key}")
         .limit(1)
 
       audit_query = audit_query.where(auditable_type: base.model_name.name) unless dedicated_table_exists
