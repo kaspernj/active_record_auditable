@@ -88,6 +88,10 @@ module ActiveRecordAuditable::Audited
         belongs_to base.model_name.param_key.to_sym, optional: true
         belongs_to :auditable, class_name: base.name, foreign_key: :"#{base.model_name.param_key}_id", optional: true
 
+        def self.base_model
+          reflections["auditable"].klass
+        end
+
         def auditable_type
           self.class.reflections["auditable"].class_name
         end
