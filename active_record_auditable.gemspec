@@ -4,7 +4,7 @@ Gem::Specification.new do |spec|
   spec.name        = "active_record_auditable"
   spec.version     = ActiveRecordAuditable::VERSION
   spec.authors     = ["kaspernj"]
-  spec.email       = ["k@spernj.org"]
+  spec.email       = ["kasper@diestoeckels.de"]
   spec.homepage    = "https://github.com/kaspernj/active_record_auditable"
   spec.summary     = "Audits for your records."
   spec.description = "Audits for your records."
