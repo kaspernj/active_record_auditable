@@ -14,6 +14,7 @@ class ActiveRecordAuditable::MigrateAuditsFromSharedTable < ActiveRecordAuditabl
       records.first.keys.each do |key|
         next if key == "auditable_id" || key == "auditable_type" || key == "audit_auditable_type_id"
 
+        key = "current_user_id" if key == "user_id"
         insert_sql << ", `#{key}`"
       end
 
@@ -31,14 +32,6 @@ class ActiveRecordAuditable::MigrateAuditsFromSharedTable < ActiveRecordAuditabl
 
         data.each do |key, value|
           next if key == "auditable_id" || key == "auditable_type" || key == "audit_auditable_type_id"
-
-          if key == "user_id"
-            key = "current_user_id"
-          elsif key == "school_id"
-            key = "current_school_id"
-          elsif key == "school_class_id"
-            key = "current_school_class_id"
-          end
 
           insert_sql << ", "
           insert_sql << model_class.connection.quote(value)
