@@ -8,6 +8,10 @@ class ActiveRecordAuditable::Audit < ActiveRecordAuditable::BaseAudit
 
   before_validation :set_audit_auditable_type
 
+  def type
+    audit_auditable_type.name
+  end
+
 private
 
   def set_audit_auditable_type

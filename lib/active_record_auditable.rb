@@ -4,4 +4,5 @@ require "service_pattern"
 
 module ActiveRecordAuditable
   autoload :Audited, "#{__dir__}/active_record_auditable/audited"
+  autoload :Events, "#{__dir__}/active_record_auditable/events"
 end
