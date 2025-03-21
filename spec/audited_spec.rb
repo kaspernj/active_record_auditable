@@ -42,6 +42,18 @@ describe "audited" do
     )
   end
 
+  it "calls events" do
+    called = false
+
+    ActiveRecordAuditable::Events.current.connect("Project", "test_event") do |audit:|
+      called = true
+    end
+
+    project.create_audit!(action: :test_event)
+
+    expect(called).to be true
+  end
+
   describe "#without_audit" do
     it "filters out audits with a specific audit" do
       project1 = create(:project)
