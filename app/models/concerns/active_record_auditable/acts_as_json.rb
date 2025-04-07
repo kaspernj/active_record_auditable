@@ -7,8 +7,6 @@ module ActiveRecordAuditable::ActsAsJson
     def acts_as_json(attribute_name) # rubocop:disable Metrics/PerceivedComplexity
       return if ActiveRecordAuditable::Audit.connection.class.name.include?("SQLite")
 
-      serialize attribute_name, coder: JSON
-
       validate do
         value = __send__(attribute_name)
 
