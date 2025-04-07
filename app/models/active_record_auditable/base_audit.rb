@@ -7,7 +7,6 @@ class ActiveRecordAuditable::BaseAudit < ActiveRecordAuditable::ApplicationRecor
     child.include ActiveRecordAuditable::ActsAsJson
 
     child.acts_as_json :audited_changes
-    child.acts_as_json :extra_liquid_variables
     child.acts_as_json :params
   end
 
