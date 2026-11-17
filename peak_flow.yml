@@ -1,5 +1,42 @@
 rvm: true
-before_script:
-  - cd spec/dummy && bundle exec rails db:schema:load
-script:
-  - bundle exec rspec
+builds:
+  library:
+    name: Library
+    paths:
+      - app/**
+      - config/**
+      - db/**
+      - lib/**
+      - "*.gemspec"
+      - Gemfile
+      - Gemfile.lock
+      - Rakefile
+      - .ruby-version
+      - peak_flow.yml
+      - .github/**
+      - bin/**
+      - "!spec/**"
+    before_script:
+      - cd spec/dummy && bundle exec rails db:schema:load
+    script:
+      - bundle exec rspec
+  specs:
+    name: Specs
+    paths:
+      - spec/**
+      - Gemfile
+      - Gemfile.lock
+      - Rakefile
+      - .ruby-version
+      - peak_flow.yml
+      - .github/**
+      - bin/**
+      - "!app/**"
+      - "!config/**"
+      - "!db/**"
+      - "!lib/**"
+      - "!*.gemspec"
+    before_script:
+      - cd spec/dummy && bundle exec rails db:schema:load
+    script:
+      - bundle exec rspec
