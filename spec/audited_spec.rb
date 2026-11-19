@@ -1,5 +1,6 @@
 require "rails_helper"
 
+# This spec belongs to the specs-only Peakflow lane.
 describe "audited" do
   let(:account) { create :account, name: "Test account" }
   let(:project) { create :project, name: "Test project" }

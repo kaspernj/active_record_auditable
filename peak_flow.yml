@@ -12,6 +12,7 @@ builds:
       - Gemfile.lock
       - Rakefile
       - .ruby-version
+      - .rspec
       - peak_flow.yml
       - .github/**
       - bin/**
@@ -28,6 +29,7 @@ builds:
       - Gemfile.lock
       - Rakefile
       - .ruby-version
+      - .rspec
       - peak_flow.yml
       - .github/**
       - bin/**
